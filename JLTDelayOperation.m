@@ -34,6 +34,8 @@ typedef NS_OPTIONS(NSUInteger, JLTDelayOperationState) {
 
     self.jlt_state = JLTDelayOperationStateExecuting;
     self.jlt_timer = [self jlt_timerWithDelay:self.delay target:self selector:@selector(jlt_finish:)];
+
+    [self main];
 }
 
 - (void)main
@@ -62,7 +64,13 @@ typedef NS_OPTIONS(NSUInteger, JLTDelayOperationState) {
 
 - (NSTimer *)jlt_timerWithDelay:(NSTimeInterval)delay target:(id)target selector:(SEL)sel
 {
-    return [NSTimer scheduledTimerWithTimeInterval:delay target:target selector:sel userInfo:nil repeats:NO];
+    NSTimer *timer = [NSTimer timerWithTimeInterval:delay target:target selector:sel userInfo:nil repeats:NO];
+
+    NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+    [runLoop addTimer:timer forMode:NSDefaultRunLoopMode];
+    [runLoop run]; // ensure the runLoop is going.
+
+    return timer;
 }
 
 #pragma mark Memory lifecycle
@@ -110,11 +118,42 @@ typedef NS_OPTIONS(NSUInteger, JLTDelayOperationState) {
 
 + (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key
 {
-    if ([@[@"executing", @"finished", @"cancelled"] containsObject:key]) {
+    NSArray *keyPaths = @[@"isExecuting", @"executing",
+                          @"isFinished",  @"finished",
+                          @"isCancelled", @"cancelled"];
+
+    if ([keyPaths containsObject:key]) {
         return [NSSet setWithObject:@"jlt_state"];
     }
 
     return nil;
+}
+
+@end
+
+@implementation NSBlockOperation (JLTDelayOperation)
+
++ (NSArray *)blockOperationWithDelay:(NSTimeInterval)delay andBlock:(void (^)(void))block
+{
+    JLTDelayOperation *delayOperation = [JLTDelayOperation delayOperationWithDelay:delay];
+    NSBlockOperation *blockOperation = [NSBlockOperation blockOperationWithBlock:block];
+
+    [blockOperation addDependency:delayOperation];
+
+    return @[delayOperation, blockOperation];
+}
+
+@end
+
+@implementation NSOperationQueue (JLTDelayOperation)
+
+- (NSArray *)addOperationWithDelay:(NSTimeInterval)delay andBlock:(void (^)(void))block
+{
+    NSArray *operations = [NSBlockOperation blockOperationWithDelay:delay andBlock:block];
+
+    [self addOperations:operations waitUntilFinished:NO];
+
+    return operations;
 }
 
 @end

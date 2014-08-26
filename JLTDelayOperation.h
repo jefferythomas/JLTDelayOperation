@@ -10,8 +10,20 @@
 
 @interface JLTDelayOperation : NSOperation
 
-@property (nonatomic) NSTimeInterval delay;
+@property (readonly) NSTimeInterval delay;
 
 + (instancetype)delayOperationWithDelay:(NSTimeInterval)delay;
+
+@end
+
+@interface NSBlockOperation (JLTDelayOperation)
+
++ (NSArray *)blockOperationWithDelay:(NSTimeInterval)delay andBlock:(void (^)(void))block;
+
+@end
+
+@interface NSOperationQueue (JLTDelayOperation)
+
+- (NSArray *)addOperationWithDelay:(NSTimeInterval)delay andBlock:(void (^)(void))block;
 
 @end
