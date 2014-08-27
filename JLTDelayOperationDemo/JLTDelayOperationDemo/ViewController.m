@@ -25,8 +25,9 @@
     } else if (self.jlt_delayOperation.executing) {
         [self.jlt_delayOperation cancel];
     } else {
-        self.jlt_delayOperation = [JLTDelayOperation delayOperationWithDelay:5.0];
-        [self.jlt_delayOperation start];
+        JLTDelayOperation *operation = [JLTDelayOperation delayOperationWithDelay:5.0];
+        [operation start];
+        self.jlt_delayOperation = operation;
     }
 }
 
@@ -38,7 +39,7 @@
     } else if ([self.jlt_delayOperationInQueue isExecuting]) {
         [self.jlt_operationQueue cancelAllOperations];
     } else {
-        NSArray *operations = [NSBlockOperation blockOperationWithDelay:5.0 andBlock:^{
+        NSArray *operations = [self.jlt_operationQueue addOperationWithDelay:5.0 andBlock:^{
             dispatch_async(dispatch_get_main_queue(), ^{
                 NSLog(@"YES");
             });
@@ -46,7 +47,6 @@
 
         self.jlt_delayOperationInQueue = operations[0];
         self.jlt_blockOperationInQueue = operations[1];
-        [self.jlt_operationQueue addOperations:operations waitUntilFinished:NO];
     }
 }
 

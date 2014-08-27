@@ -14,63 +14,68 @@ typedef NS_OPTIONS(NSUInteger, JLTDelayOperationState) {
     JLTDelayOperationStateCancelled = 1 << 2,
 };
 
+@interface NSTimer (JLTDelayOperation)
++ (instancetype)scheduledTimerOnRunLoop:(NSRunLoop *)runLoop
+                       withTimeInterval:(NSTimeInterval)timeInterval
+                                 target:(id)target
+                               selector:(SEL)selector
+                               userInfo:(id)userInfo
+                                repeats:(BOOL)yesOrNo;
+@end
+
+#pragma mark -
+
 @interface JLTDelayOperation ()
 @property JLTDelayOperationState jlt_state;
 @property NSTimer *jlt_timer;
 @end
+
+#pragma mark -
 
 @implementation JLTDelayOperation
 
 - (void)start
 {
     if (self.cancelled) {
-        NSAssert(!self.executing, @"");
-        NSAssert(self.finished, @"");
+        NSAssert(!self.executing && self.finished, @"Operation cancelled, but it's not in the proper state");
         return;
     }
 
-    NSAssert(!self.executing, @"");
-    NSAssert(!self.finished, @"");
-
+    NSAssert(!self.executing && !self.finished, @"Operation started, but it's not in the proper state");
     self.jlt_state = JLTDelayOperationStateExecuting;
-    self.jlt_timer = [self jlt_timerWithDelay:self.delay target:self selector:@selector(jlt_finish:)];
 
-    [self main];
+    self.jlt_timer = [NSTimer scheduledTimerOnRunLoop:[NSRunLoop mainRunLoop]
+                                     withTimeInterval:self.delay
+                                               target:self
+                                             selector:@selector(jlt_fireTimer:)
+                                             userInfo:nil
+                                              repeats:NO];
+
+    [self main]; // Leaving room for subclasses.
 }
 
 - (void)main
 {
-    // Does nothing!
+    // Does nothing, but a subclass might.
 }
 
 - (void)cancel
 {
-    [self jlt_finish:self];
+    [self.jlt_timer invalidate]; self.jlt_timer = nil;
+    self.jlt_state = JLTDelayOperationStateFinished | JLTDelayOperationStateCancelled;
 }
 
 #pragma mark Private
 
-- (void)jlt_finish:(id)sender
+- (void)jlt_finish
 {
-    [self.jlt_timer invalidate];
     self.jlt_timer = nil;
-
-    if ([sender isKindOfClass:[NSTimer class]]) {
-        self.jlt_state = JLTDelayOperationStateFinished;
-    } else {
-        self.jlt_state = JLTDelayOperationStateFinished | JLTDelayOperationStateCancelled;
-    }
+    self.jlt_state = JLTDelayOperationStateFinished;
 }
 
-- (NSTimer *)jlt_timerWithDelay:(NSTimeInterval)delay target:(id)target selector:(SEL)sel
+- (void)jlt_fireTimer:(NSTimer *)timer
 {
-    NSTimer *timer = [NSTimer timerWithTimeInterval:delay target:target selector:sel userInfo:nil repeats:NO];
-
-    NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
-    [runLoop addTimer:timer forMode:NSDefaultRunLoopMode];
-    [runLoop run]; // ensure the runLoop is going.
-
-    return timer;
+    [self jlt_finish];
 }
 
 #pragma mark Memory lifecycle
@@ -131,6 +136,8 @@ typedef NS_OPTIONS(NSUInteger, JLTDelayOperationState) {
 
 @end
 
+#pragma mark -
+
 @implementation NSBlockOperation (JLTDelayOperation)
 
 + (NSArray *)blockOperationWithDelay:(NSTimeInterval)delay andBlock:(void (^)(void))block
@@ -145,6 +152,8 @@ typedef NS_OPTIONS(NSUInteger, JLTDelayOperationState) {
 
 @end
 
+#pragma mark -
+
 @implementation NSOperationQueue (JLTDelayOperation)
 
 - (NSArray *)addOperationWithDelay:(NSTimeInterval)delay andBlock:(void (^)(void))block
@@ -154,6 +163,30 @@ typedef NS_OPTIONS(NSUInteger, JLTDelayOperationState) {
     [self addOperations:operations waitUntilFinished:NO];
 
     return operations;
+}
+
+@end
+
+#pragma mark -
+
+@implementation NSTimer (JLTDelayOperation)
+
++ (instancetype)scheduledTimerOnRunLoop:(NSRunLoop *)runLoop
+                       withTimeInterval:(NSTimeInterval)timeInterval
+                                 target:(id)target
+                               selector:(SEL)selector
+                               userInfo:(id)userInfo
+                                repeats:(BOOL)yesOrNo
+{
+    NSTimer *timer = [NSTimer timerWithTimeInterval:timeInterval
+                                             target:target
+                                           selector:selector
+                                           userInfo:userInfo
+                                            repeats:yesOrNo];
+
+    [runLoop addTimer:timer forMode:NSDefaultRunLoopMode];
+
+    return timer;
 }
 
 @end
