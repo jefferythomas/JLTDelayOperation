@@ -41,6 +41,7 @@
 		7B3ED13219AB3DBA00120C4C /* JLTDelayOperationDemoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JLTDelayOperationDemoTests.m; sourceTree = "<group>"; };
 		7B3ED13C19AB3E6200120C4C /* JLTDelayOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JLTDelayOperation.h; path = ../JLTDelayOperation.h; sourceTree = "<group>"; };
 		7B3ED13D19AB3E6200120C4C /* JLTDelayOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = JLTDelayOperation.m; path = ../JLTDelayOperation.m; sourceTree = "<group>"; };
+		7B7D5C9E19B15ECB00FC7E5A /* JLTDelayOperationSubclass.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = JLTDelayOperationSubclass.h; path = ../JLTDelayOperationSubclass.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +66,7 @@
 			isa = PBXGroup;
 			children = (
 				7B3ED13C19AB3E6200120C4C /* JLTDelayOperation.h */,
+				7B7D5C9E19B15ECB00FC7E5A /* JLTDelayOperationSubclass.h */,
 				7B3ED13D19AB3E6200120C4C /* JLTDelayOperation.m */,
 				7B3ED11819AB3DB900120C4C /* JLTDelayOperationDemo */,
 				7B3ED12F19AB3DBA00120C4C /* JLTDelayOperationDemoTests */,
@@ -409,6 +411,7 @@
 				7B3ED13819AB3DBA00120C4C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		7B3ED13919AB3DBA00120C4C /* Build configuration list for PBXNativeTarget "JLTDelayOperationDemoTests" */ = {
 			isa = XCConfigurationList;
@@ -417,6 +420,7 @@
 				7B3ED13B19AB3DBA00120C4C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
