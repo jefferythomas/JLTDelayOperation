@@ -14,6 +14,7 @@
 @property (nonatomic) JLTDelayOperation *jlt_delayOperationInQueue;
 @property (nonatomic) NSBlockOperation *jlt_blockOperationInQueue;
 @property (nonatomic) NSOperationQueue *jlt_operationQueue;
+@property (nonatomic) BOOL jlt_blockFired;
 @end
 
 @implementation ViewController
@@ -39,9 +40,10 @@
     } else if ([self.jlt_delayOperationInQueue isExecuting]) {
         [self.jlt_operationQueue cancelAllOperations];
     } else {
+        __weak typeof(self) weakSelf = self;
         NSArray *operations = [self.jlt_operationQueue addOperationWithDelay:5.0 andBlock:^{
             dispatch_async(dispatch_get_main_queue(), ^{
-                NSLog(@"YES");
+                weakSelf.jlt_blockFired = YES;
             });
         }];
 
@@ -82,9 +84,12 @@
                 [self.queueCommandButton setTitle:@"Cancel" forState:UIControlStateNormal];
             } else {
                 self.queueStateLabel.text = @"Ready";
+                self.jlt_blockFired = NO;
                 [self.queueCommandButton setTitle:@"Start" forState:UIControlStateNormal];
             }
         });
+    } else if ([keyPath isEqualToString:@"jlt_blockFired"]) {
+        self.blockFiredLabel.hidden = !self.jlt_blockFired;
     }
 }
 
@@ -97,12 +102,14 @@
     NSKeyValueObservingOptions options = NSKeyValueObservingOptionInitial;
     [self addObserver:self forKeyPath:@"jlt_delayOperation.isExecuting" options:options context:NULL];
     [self addObserver:self forKeyPath:@"jlt_delayOperationInQueue.isExecuting" options:options context:NULL];
+    [self addObserver:self forKeyPath:@"jlt_blockFired" options:options context:NULL];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
     [self removeObserver:self forKeyPath:@"jlt_delayOperation.isExecuting"];
     [self removeObserver:self forKeyPath:@"jlt_delayOperationInQueue.isExecuting"];
+    [self removeObserver:self forKeyPath:@"jlt_blockFired"];
 
     [super viewWillDisappear:animated];
 }

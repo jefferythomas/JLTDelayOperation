@@ -68,16 +68,23 @@
                                             <action selector="execQueueCommand:" destination="vXZ-lx-hvc" eventType="touchUpInside" id="vpZ-zt-USC"/>
                                         </connections>
                                     </button>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Ready" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HET-fI-AjC">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Ready" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HET-fI-AjC">
                                         <rect key="frame" x="126" y="279" width="49" height="21"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Test Delay Operation in Queue" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="284" translatesAutoresizingMaskIntoConstraints="NO" id="2Yx-mF-6YF">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="200" text="Test Delay Operation in Queue" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="284" translatesAutoresizingMaskIntoConstraints="NO" id="2Yx-mF-6YF">
                                         <rect key="frame" x="8" y="8" width="284" height="263"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="200" text="Dependent Block Fired!" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="260" translatesAutoresizingMaskIntoConstraints="NO" id="hni-mX-fMu">
+                                        <rect key="frame" x="20" y="308" width="260" height="214"/>
+                                        <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
@@ -88,7 +95,11 @@
                                     <constraint firstAttribute="centerX" secondItem="HET-fI-AjC" secondAttribute="centerX" id="5gV-O7-Iy9"/>
                                     <constraint firstItem="2Yx-mF-6YF" firstAttribute="top" secondItem="YqI-OD-moe" secondAttribute="top" constant="8" id="9tc-nF-zf8"/>
                                     <constraint firstItem="2Yx-mF-6YF" firstAttribute="leading" secondItem="YqI-OD-moe" secondAttribute="leading" constant="8" id="E7l-cv-HDT"/>
+                                    <constraint firstItem="hni-mX-fMu" firstAttribute="leading" secondItem="YqI-OD-moe" secondAttribute="leading" constant="20" id="OuQ-JP-uGz"/>
+                                    <constraint firstItem="uVQ-v0-U9W" firstAttribute="top" secondItem="hni-mX-fMu" secondAttribute="bottom" constant="8" id="TpY-Zs-CYP"/>
+                                    <constraint firstItem="hni-mX-fMu" firstAttribute="top" secondItem="HET-fI-AjC" secondAttribute="bottom" constant="8" id="ccm-ew-pP9"/>
                                     <constraint firstAttribute="trailing" secondItem="2Yx-mF-6YF" secondAttribute="trailing" constant="8" id="sWy-hv-w51"/>
+                                    <constraint firstAttribute="trailing" secondItem="hni-mX-fMu" secondAttribute="trailing" constant="20" id="sXd-lf-Y69"/>
                                     <constraint firstAttribute="centerY" secondItem="HET-fI-AjC" secondAttribute="centerY" id="uok-9d-KSr"/>
                                     <constraint firstAttribute="centerX" secondItem="uVQ-v0-U9W" secondAttribute="centerX" id="zre-lI-fAd"/>
                                 </constraints>
@@ -108,6 +119,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="blockFiredLabel" destination="hni-mX-fMu" id="cwA-rq-OLj"/>
                         <outlet property="commandButton" destination="lul-u4-vdH" id="HmP-zC-Psn"/>
                         <outlet property="queueCommandButton" destination="uVQ-v0-U9W" id="Ezi-LC-D0V"/>
                         <outlet property="queueStateLabel" destination="HET-fI-AjC" id="DRX-jB-3EY"/>

@@ -11,8 +11,10 @@
 @interface ViewController : UIViewController
 
 @property (weak, nonatomic) IBOutlet UILabel *stateLabel;
-@property (weak, nonatomic) IBOutlet UIButton *commandButton;
 @property (weak, nonatomic) IBOutlet UILabel *queueStateLabel;
+@property (weak, nonatomic) IBOutlet UILabel *blockFiredLabel;
+
+@property (weak, nonatomic) IBOutlet UIButton *commandButton;
 @property (weak, nonatomic) IBOutlet UIButton *queueCommandButton;
 
 - (IBAction)execCommand:(id)sender;
