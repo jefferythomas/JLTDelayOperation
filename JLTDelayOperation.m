@@ -170,13 +170,21 @@ typedef NS_OPTIONS(NSUInteger, JLTDelayOperationState) {
 
 @implementation NSOperationQueue (JLTDelayOperation)
 
-- (NSArray *)addOperationWithDelay:(NSTimeInterval)delay andBlock:(void (^)(void))block
+- (JLTDelayOperation *)addOperationWithDelay:(NSTimeInterval)delay andBlock:(void (^)(void))block
 {
-    NSArray *operations = [NSBlockOperation blockOperationWithDelay:delay andBlock:block];
+    JLTDelayOperation *delayOperation = [JLTDelayOperation delayOperationWithDelay:delay];
+    [self addOperation:delayOperation];
 
-    [self addOperations:operations waitUntilFinished:NO];
+    [self addOperationDependentOnOperation:delayOperation withBlock:block];
 
-    return operations;
+    return delayOperation;
+}
+
+- (void)addOperationDependentOnOperation:(NSOperation *)operation withBlock:(void (^)(void))block
+{
+    NSOperation *blockOperation = [NSBlockOperation blockOperationWithBlock:block];
+    [blockOperation addDependency:operation];
+    [self addOperation:blockOperation];
 }
 
 @end

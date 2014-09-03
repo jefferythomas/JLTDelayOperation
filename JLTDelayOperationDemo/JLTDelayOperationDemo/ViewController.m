@@ -12,7 +12,6 @@
 @interface ViewController ()
 @property (nonatomic) JLTDelayOperation *jlt_delayOperation;
 @property (nonatomic) JLTDelayOperation *jlt_delayOperationInQueue;
-@property (nonatomic) NSBlockOperation *jlt_blockOperationInQueue;
 @property (nonatomic) NSOperationQueue *jlt_operationQueue;
 @property (nonatomic) BOOL jlt_blockFired;
 @end
@@ -36,19 +35,15 @@
 {
     if ([self.jlt_delayOperationInQueue isFinished]) {
         self.jlt_delayOperationInQueue = nil;
-        self.jlt_blockOperationInQueue = nil;
     } else if ([self.jlt_delayOperationInQueue isExecuting]) {
         [self.jlt_operationQueue cancelAllOperations];
     } else {
         __weak typeof(self) weakSelf = self;
-        NSArray *operations = [self.jlt_operationQueue addOperationWithDelay:5.0 andBlock:^{
+        self.jlt_delayOperationInQueue = [self.jlt_operationQueue addOperationWithDelay:5.0 andBlock:^{
             dispatch_async(dispatch_get_main_queue(), ^{
                 weakSelf.jlt_blockFired = YES;
             });
         }];
-
-        self.jlt_delayOperationInQueue = operations[0];
-        self.jlt_blockOperationInQueue = operations[1];
     }
 }
 

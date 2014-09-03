@@ -36,10 +36,12 @@
 @interface NSBlockOperation (JLTDelayOperation)
 
 /*!
- Returns a pair of @c NSOperation objects. The first object is a
- @c JLTDelayOperation with the specified delay. The second object is a
- @c NSBlockOperation with the specified block. The @c NSBlockOperation
- depends (@c -addDependency:) on the @c JLTDelayOperation.
+ Creates a pair of @c NSOperation objects. The first operation is a
+ @c JLTDelayOperation with the specified delay. The second operation is a
+ @c NSBlockOperation with the specified block. The @c NSBlockOperation depends
+ (@c -addDependency:) on the @c JLTDelayOperation.
+
+ @returns a pair of @c NSOperation objects
  */
 + (NSArray *)blockOperationWithDelay:(NSTimeInterval)delay andBlock:(void (^)(void))block;
 
@@ -48,11 +50,19 @@
 @interface NSOperationQueue (JLTDelayOperation)
 
 /*!
- Returns a pair of @c NSOperation objects. The first object is a
- @c JLTDelayOperation with the specified delay. The second object is a
- @c NSBlockOperation with the specified block. The @c NSBlockOperation
- depends (@-addDependency:) on the @c JLTDelayOperation.
+ Creates an operation and adds it to the operation queue. The operation will not
+ start until after the specified delay. Returns a @c JLTDelayOperation instance
+ so additional operations can be added with the same delay.
+
+ @returns a @c JLTDelayOperation instance with the specified delay
  */
-- (NSArray *)addOperationWithDelay:(NSTimeInterval)delay andBlock:(void (^)(void))block;
+- (JLTDelayOperation *)addOperationWithDelay:(NSTimeInterval)delay andBlock:(void (^)(void))block;
+
+
+/*!
+ Creates an operation and adds it to the operation queue. The operation will not
+ start until after the specified operation has finished.
+ */
+- (void)addOperationDependentOnOperation:(NSOperation *)operation withBlock:(void (^)(void))block;
 
 @end
