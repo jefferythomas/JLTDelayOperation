@@ -15,7 +15,6 @@ typedef NS_OPTIONS(NSUInteger, JLTDelayOperationState) {
 };
 
 @interface JLTDelayOperation ()
-@property (atomic) NSTimer *timer;
 @property (atomic) JLTDelayOperationState jlt_state;
 @end
 
@@ -29,14 +28,7 @@ typedef NS_OPTIONS(NSUInteger, JLTDelayOperationState) {
         return;
     }
 
-    [self expireDelay];
     self.jlt_state = JLTDelayOperationStateFinished;
-}
-
-- (void)expireDelay
-{
-    [self.timer invalidate];
-    self.timer = nil;
 }
 
 #pragma mark NSOperation overrides
@@ -63,16 +55,12 @@ typedef NS_OPTIONS(NSUInteger, JLTDelayOperationState) {
     NSAssert(!self.cancelled, @"-main called on a cancelled operation.");
     NSAssert(!self.finished, @"-main called on a finished operation.");
 
-    self.timer = [NSTimer timerWithTimeInterval:self.delay
-                                         target:self
-                                       selector:@selector(jlt_fireTimer:)
-                                       userInfo:nil
-                                        repeats:NO];
-
-    // NOTE: The main run loop is always running, so it a good place to run the
-    //       timer. Starting the timer on the current run loop would require
-    //       maintaining that run loop.
-    [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSDefaultRunLoopMode];
+    dispatch_queue_t dispatchQueue = [self jlt_dispatchQueue];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.delay * NSEC_PER_SEC)), dispatchQueue, ^{
+        if (!self.cancelled) {
+            [self finish];
+        }
+    });
 }
 
 - (void)cancel
@@ -81,15 +69,22 @@ typedef NS_OPTIONS(NSUInteger, JLTDelayOperationState) {
         return;
     }
 
-    [self expireDelay];
     self.jlt_state = JLTDelayOperationStateFinished | JLTDelayOperationStateCancelled;
 }
 
 #pragma mark Private
 
-- (void)jlt_fireTimer:(NSTimer *)timer
+- (dispatch_queue_t)jlt_dispatchQueue
 {
-    [self finish];
+    NSOperationQueue *queue = [NSOperationQueue currentQueue];
+
+    if (queue == nil) {
+        // If this operation was started outside any operation queue, then
+        // return a dispatch queue for it to execute in.
+        return dispatch_get_global_queue(QOS_CLASS_DEFAULT, 0);
+    }
+
+    return queue.underlyingQueue;
 }
 
 #pragma mark Memory lifecycle
